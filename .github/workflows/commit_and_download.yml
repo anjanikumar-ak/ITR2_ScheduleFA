@@ -8,6 +8,8 @@ on:
 jobs:
   download_and_replace:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
 
     steps:
       # Step 1: Checkout your repository
