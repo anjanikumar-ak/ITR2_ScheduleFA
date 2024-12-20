@@ -17,8 +17,7 @@ jobs:
       # Step 2: Download the file from the source repository
       - name: Download File
         run: |
-          curl -L -o <local-path-to-file> https://raw.githubusercontent.com/<source-owner>/<source-repo>/<branch>/<path-to-file>
-
+          curl -L -o SBI_REFERENCE_RATES_USD.csv https://raw.githubusercontent.com/sahilgupta/sbi-fx-ratekeeper/refs/heads/main/csv_files/SBI_REFERENCE_RATES_USD.csv
       # Step 3: Commit and push the file (replace if it exists)
       - name: Commit and Push Changes
         run: |
@@ -27,8 +26,8 @@ jobs:
 
           # Check if the file has changed
           if ! git diff --quiet; then
-            git add <local-path-to-file>
-            git commit -m "Updated file from <source-repo>"
+            git add SBI_REFERENCE_RATES_USD.csv
+            git commit -m "Updated file from sbi-fx-ratekeeper"
             git push
           else
             echo "No changes detected in the file."
