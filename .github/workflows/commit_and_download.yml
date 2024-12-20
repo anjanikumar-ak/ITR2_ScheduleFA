@@ -3,7 +3,7 @@ name: Download and Replace File
 on:
   workflow_dispatch: # Trigger manually
   schedule:          # Optional: Run periodically (e.g., daily)
-    - cron: '0 12 * * *'
+    - cron: '0 0 * * 0'
 
 jobs:
   download_and_replace:
