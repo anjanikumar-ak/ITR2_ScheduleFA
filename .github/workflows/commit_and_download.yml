@@ -1,0 +1,37 @@
+name: Download and Replace File
+
+on:
+  workflow_dispatch: # Trigger manually
+  schedule:          # Optional: Run periodically (e.g., daily)
+    - cron: '0 12 * * *'
+
+jobs:
+  download_and_replace:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Step 1: Checkout your repository
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+
+      # Step 2: Download the file from the source repository
+      - name: Download File
+        run: |
+          curl -L -o <local-path-to-file> https://raw.githubusercontent.com/<source-owner>/<source-repo>/<branch>/<path-to-file>
+
+      # Step 3: Commit and push the file (replace if it exists)
+      - name: Commit and Push Changes
+        run: |
+          git config user.name "GitHub Actions"
+          git config user.email "actions@github.com"
+
+          # Check if the file has changed
+          if ! git diff --quiet; then
+            git add <local-path-to-file>
+            git commit -m "Updated file from <source-repo>"
+            git push
+          else
+            echo "No changes detected in the file."
+          fi
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
