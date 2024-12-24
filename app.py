@@ -4,7 +4,7 @@ import pandas as pd
 import json
 import warnings
 
-warnings.filterwarnings("ignore")
+# warnings.filterwarnings("ignore")
 
 # import utils as utils
 app = FastAPI()
