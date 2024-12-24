@@ -139,7 +139,7 @@ async def get_investment_history(request:Request):
     iv_df = pd.DataFrame(iv)
     iv_df['investment_date'] = pd.to_datetime(iv_df['investment_date'],utc=True)
 
-    iv_df['investment_date'] = pd.to_datetime(iv_df['investment_date'], format='%Y-%m-%d', errors='coerce')
+    #iv_df['investment_date'] = pd.to_datetime(iv_df['investment_date'], format='%Y-%m-%d', errors='coerce')
 
     hf = dataframes['QCOM_history']
     hf['Date'] = pd.to_datetime(hf['Date'], utc=True)
