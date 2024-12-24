@@ -2,9 +2,11 @@ from fastapi import FastAPI,Depends,Request
 from fastapi.responses import JSONResponse
 import pandas as pd
 import json
+
 # import utils as utils
 app = FastAPI()
 
+Request.ignore_warnings = True
 dataframes = {}
 
 @app.on_event("startup")
