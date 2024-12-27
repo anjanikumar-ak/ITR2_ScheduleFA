@@ -49,7 +49,6 @@
     <button onclick="onBtnExport()" class="w-1/2 bg-green-500 text-white p-2 rounded-md mt-4">Download CSV export file</button>
     </div>
     <br>
-    <button onclick="sampleCORSCall()" class="w-1/2 bg-green-500 text-white p-2 rounded-md mt-4">Fetch</button>
     <div id="myGrid" class="ag-theme-alpine" style="height: 400px; width: 100%;"></div>
 
     <script src="https://unpkg.com/ag-grid-community/dist/ag-grid-community.min.js"></script>
@@ -401,12 +400,6 @@
   gridApi.exportDataAsCsv();
 }
 
-     function sampleCORSCall(){
-        fetch(`https://api.allorigins.win/get?url=${encodeURIComponent('https://query1.finance.yahoo.com/v8/finance/chart/QCOM')}`)
-        // fetch('https://query1.finance.yahoo.com/v8/finance/chart/QCOM')
-        .then(response => response.json())
-        .then(json => console.log(json))
-     }
     </script>
 </body>
 </html>
