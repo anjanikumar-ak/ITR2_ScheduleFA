@@ -1,5 +1,6 @@
 from fastapi import FastAPI,Depends,Request
 from fastapi.responses import JSONResponse
+from fastapi.responses import HTMLResponse
 import pandas as pd
 import json
 import warnings
@@ -116,7 +117,7 @@ def prepare_iv_dict(req_json):
 @app.get("/")
 async def home(df_store: dict = Depends(get_dataframes)):
     df = df_store['QCOM_history']
-    return f"Dataframe Sample {df.head().to_dict(orient='records')}"
+    return HTMLResponse(content=open("index.html").read(),status_code=200)
 
 @app.get("/check")
 async def get_investment_history(request:Request):
@@ -132,6 +133,7 @@ async def get_investment_history(request:Request):
 
 
 @app.get("/compute")
+@app.post("/compute")
 async def get_investment_history(request:Request):
     try:
         json_data = await request.json()
@@ -140,6 +142,7 @@ async def get_investment_history(request:Request):
         return JSONResponse(content=json_response, status_code=400)
 
     year = 2024
+    print(json_data)
     iv = prepare_iv_dict(json_data)
     iv_df = pd.DataFrame(iv)
     iv_df['investment_date'] = pd.to_datetime(iv_df['investment_date'],utc=True)
@@ -162,7 +165,7 @@ async def get_investment_history(request:Request):
         lambda row: get_previous_month_last_date(row['Date'], df, 'DATE')['TT BUY'], axis=1
     )
 
-    iv_df['stock_price'] = iv_df['stock_price'].str.replace('$', '').astype('float64')
+    #iv_df['stock_price'] = iv_df['stock_price'].str.replace('$', '').astype('float64')
     iv_df['stock_price_yf'] = iv_df.apply(lambda row: get_stock_purchase_price(row['investment_date'], hf), axis=1)
     iv_df['SBI_TT_BUY'] = iv_df.apply(lambda row: get_previous_month_last_date(row['investment_date'], df, 'DATE')['TT BUY'], axis=1)
     iv_df['investment_value_INR'] = iv_df['stock_price'] * iv_df['stock_quantity'] * iv_df['SBI_TT_BUY']
@@ -185,7 +188,21 @@ async def get_investment_history(request:Request):
     iv_df['peak_date'] = iv_df['peak_date'].dt.date.astype(str)
     iv_df['closing_date'] = iv_df['closing_date'].dt.date.astype(str)
 
+
+    iv_df['investment_value_INR'] = iv_df['investment_value_INR'].round(2)
+    iv_df['investment_value_USD'] = iv_df['investment_value_USD'].round(2)
+    iv_df['peak_value_INR'] = iv_df['peak_value_INR'].round(2)
+    iv_df['peak_value_USD'] = iv_df['peak_value_USD'].round(2)
+    iv_df['closing_value_INR'] = iv_df['closing_value_INR'].round(2)
+    iv_df['closing_value_USD'] = iv_df['closing_value_USD'].round(2)
+
+
+    print(iv_df.to_dict(orient='records'))
+
     data = iv_df.to_dict(orient='records')
     return JSONResponse(content=data,status_code=200)
 
+@app.get("/renderpage")
+def render_page():
+    return HTMLResponse(content=open("index.html").read(),status_code=200)
 

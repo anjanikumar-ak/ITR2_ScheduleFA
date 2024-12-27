@@ -5,3 +5,5 @@ __pycache__
 fast_api
 /.vercel_venv
 .DS_Store
+ByStatus.xlsx
+practice.ipynb
