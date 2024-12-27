@@ -4,8 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Investments and Portfolio Tracker</title>
+    <link rel="icon" type="image/jpg" href="https://img.icons8.com/color/48/rupee-exchange.png"/>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+ 
     <!-- <link rel="stylesheet" href="https://unpkg.com/ag-grid-community/styles/ag-grid.css">
     <link rel="stylesheet" href="https://unpkg.com/ag-grid-community/styles/ag-theme-alpine.css"> -->
 </head>
@@ -70,11 +72,11 @@
                 const formData = new FormData(this);
                 const data = {};
                 formData.forEach((value, key) => {
-                    if (key === 'investmentDate') {
-                        data[key] = formatDate(value);
-                    } else {
+                    // if (key === 'investmentDate') {
+                    //     data[key] = formatDate(value);
+                    // } else {
                         data[key] = value;
-                    }
+                    // }
                 });
 
                 const editId = this.dataset.editId;
