@@ -24,7 +24,7 @@ jobs:
         pip install -r requirements1.txt
 
     - name: Run stock data script
-      run: python generate_stock_data.py --ticker "QCOM"
+      run: python generate_stock_data.py --ticker QCOM
 
     - name: Check for CSV changes
       run: |
