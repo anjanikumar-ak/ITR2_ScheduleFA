@@ -6,9 +6,9 @@ def download_stock_data(ticker, start_date=None):
     # Download stock data
     yf_ticker = yf.Ticker(ticker)
     if start_date:
-        stock_data = yf_ticker.history(start=start_date)
+        stock_data = yf_ticker.history(start=start_date,auto_adjust=False)
     else:
-        stock_data = yf_ticker.history(period="max")
+        stock_data = yf_ticker.history(period="max",auto_adjust=False)
     
     # Save to CSV
     csv_filename = f"{ticker}_HISTORY.csv"
