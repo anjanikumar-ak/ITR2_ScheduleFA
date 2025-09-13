@@ -1,24 +1,118 @@
-from fastapi import FastAPI,Depends,Request
+from fastapi import FastAPI,Depends,Request,HTTPException
+from fastapi.middleware.cors import CORSMiddleware
+# from itsdangerous import URLSafeTimedSerializer
+import uuid
 from fastapi.responses import JSONResponse
 from fastapi.responses import HTMLResponse
 import pandas as pd
 import json
 import warnings
-
+import httpx
+import asyncio
 # warnings.filterwarnings("ignore")
 
 # import utils as utils
+
+# SECRET_KEY = 'mysecretkey'
+# CSRF_SECRET = URLSafeTimedSerializer(SECRET_KEY)
+# CSRF_TOKEN_SALT = 'csrf-token-salt'
+
 app = FastAPI()
 
+origins = []
 
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+ping_duration = 6
 dataframes = {}
 
-@app.on_event("startup")
-async def load_dataframes():
-    global dataframes
-    dataframes["QCOM_history"] = pd.read_csv("QCOM_HISTORY.csv")
-    dataframes["SBI_REFERENCE_RATES_USD"] = pd.read_csv("SBI_REFERENCE_RATES_USD.csv")
-    print("Dataframes loaded!")
+# @app.on_event("startup")
+# async def load_dataframes():
+#     global dataframes
+#     dataframes["QCOM_history"] = pd.read_csv("QCOM_HISTORY.csv")
+#     dataframes["SBI_REFERENCE_RATES_USD"] = pd.read_csv("SBI_REFERENCE_RATES_USD.csv")
+#     print("Dataframes loaded!")
+
+
+def generateSessionId()->str:
+    session_id = str(uuid.uuid4())
+    return session_id
+
+# # CSRF secret key for signing tokens
+# CSRF_SECRET_KEY = "super_secret_key"
+# csrf_serializer = URLSafeTimedSerializer(CSRF_SECRET_KEY)
+
+
+# # Utility to generate CSRF token
+# def generate_csrf_token(session_id: str,expiry:int=604800):
+#     return csrf_serializer.dumps(session_id,salt=CSRF_TOKEN_SALT),expiry
+
+
+# # Utility to validate CSRF token
+# def validate_csrf_token(token: str, session_id: str):
+#     try:
+#         decoded_session_id = csrf_serializer.loads(token,salt=CSRF_TOKEN_SALT,max_age=30)  # 1-hour validity
+#         if decoded_session_id != session_id:
+#             raise HTTPException(status_code=403, detail="Invalid CSRF token")
+#     except Exception as e:
+#         raise HTTPException(status_code=403, detail="Invalid or expired CSRF token")
+
+# # Middleware to handle pseudo-session
+# @app.middleware("http")
+# async def session_middleware(request: Request, call_next):
+#     pseudo_session_id = request.cookies.get("pseudo_session_id")
+#     csrf_token = request.cookies.get("csrf_token")
+
+#     # If no session exists, create one
+#     if not pseudo_session_id:
+#         pseudo_session_id = str(uuid.uuid4())  # Generate unique session ID
+#         csrf_token = generate_csrf_token(pseudo_session_id)
+
+#     # Attach session and CSRF token to response
+#     response = await call_next(request)
+#     response.set_cookie("pseudo_session_id", pseudo_session_id, httponly=True, secure=True)
+#     response.set_cookie("csrf_token", csrf_token, httponly=True, secure=True)
+#     return response
+
+
+
+
+# # Example protected POST endpoint
+# @app.post("/api/submit")
+# async def submit_data(request: Request):
+#     # Extract session ID and CSRF token from cookies
+#     pseudo_session_id = request.cookies.get("pseudo_session_id")
+#     csrf_token = request.headers.get("X-CSRF-Token")  # CSRF token sent in header
+
+#     # Validate CSRF token
+#     if not csrf_token or not pseudo_session_id:
+#         raise HTTPException(status_code=403, detail="CSRF validation failed")
+#     validate_csrf_token(csrf_token, pseudo_session_id)
+
+#     # Handle the incoming data (dummy implementation)
+#     data = await request.json()
+#     return {"message": "Data submitted successfully", "data": data}
+
+
+# # Refresh session endpoint
+# @app.get("/api/refresh-session")
+# async def refresh_session(request: Request):
+#     pseudo_session_id = request.cookies.get("pseudo_session_id")
+#     if not pseudo_session_id:
+#         raise HTTPException(status_code=400, detail="No session to refresh")
+#     csrf_token = generate_csrf_token(pseudo_session_id)
+#     response = JSONResponse(content={"message": "Session refreshed"})
+#     response.set_cookie("csrf_token", csrf_token, httponly=True, secure=True)
+#     return response
+
+
+
 
 def get_dataframes():
     return dataframes
@@ -115,9 +209,13 @@ def prepare_iv_dict(req_json):
 
 
 @app.get("/")
-async def home(df_store: dict = Depends(get_dataframes)):
+async def home(request:Request,df_store: dict = Depends(get_dataframes)):
     df = df_store['QCOM_history']
     return HTMLResponse(content=open("index.html").read(),status_code=200)
+
+@app.get("/try")
+async def home(request:Request):
+    return HTMLResponse(content=open("try2.html").read(),status_code=200)
 
 @app.get("/check")
 async def get_investment_history(request:Request):
@@ -135,6 +233,14 @@ async def get_investment_history(request:Request):
 @app.get("/compute")
 @app.post("/compute")
 async def get_investment_history(request:Request):
+    # pseudo_session_id = request.cookies.get("pseudo_session_id")
+    # csrf_token = request.headers.get("X-CSRF-Token")  # CSRF token sent in header
+
+    # # Validate CSRF token
+    # if not csrf_token or not pseudo_session_id:
+    #     raise HTTPException(status_code=403, detail="CSRF validation failed")
+    # validate_csrf_token(csrf_token, pseudo_session_id)
+
     try:
         json_data = await request.json()
     except json.decoder.JSONDecodeError:
@@ -205,4 +311,63 @@ async def get_investment_history(request:Request):
 @app.get("/renderpage")
 def render_page():
     return HTMLResponse(content=open("index.html").read(),status_code=200)
+
+
+
+
+
+# Global flags to track startup tasks
+datasets_loaded = False
+self_pinging_started = False
+
+# Function to load initial datasets
+async def load_datasets():
+    global datasets_loaded
+    if not datasets_loaded:
+        print("Loading initial datasets...")
+        # Simulate dataset loading (e.g., from a database or file)
+        global dataframes
+        dataframes["QCOM_history"] = pd.read_csv("QCOM_HISTORY.csv")
+        dataframes["SBI_REFERENCE_RATES_USD"] = pd.read_csv("SBI_REFERENCE_RATES_USD.csv")
+        datasets_loaded = True
+        print("Datas loaded!")
+    else:
+        print("Datasets already loaded, skipping...")
+
+# Function for self-pinging to keep the app awake
+async def self_ping():
+    global self_pinging_started
+    if not self_pinging_started:
+        print("Starting self-pinging...")
+        self_pinging_started = True
+        while True:
+            try:
+                async with httpx.AsyncClient() as client:
+                    response = await client.get("http://127.0.0.1:8000/ping")  # Replace with deployed URL if needed
+                    print(f"Self-ping successful: {response.status_code}")
+            except Exception as e:
+                print(f"Self-ping failed: {e}")
+            global ping_duration
+            await asyncio.sleep(ping_duration)  # Ping every 10 minutes
+    else:
+        print("Self-pinging already started, skipping...")
+
+# Startup event
+@app.on_event("startup")
+async def startup_tasks():
+    # Load datasets
+    await load_datasets()
+    # Start self-pinging in the background
+    asyncio.create_task(self_ping())
+@app.get("/ping")
+async def ping():
+    return {"message": "pong"}
+
+@app.get('/pingduration')
+def pingduration(ping_time:int):
+    global ping_duration
+    ping_duration = ping_time
+    return {"ping_duration changed":ping_time}
+
+# Example API endpoint
 

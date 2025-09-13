@@ -351,15 +351,26 @@
             if (!gridApi) {
                 gridOptions = {
                     columnDefs: [
-                        { headerName: "Stock Code", field: "stock_code" },
-                        { headerName: "Investment Type", field: "investment_type" },
-                        { headerName: "Stock Price", field: "stock_price" },
-                        { headerName: "Investment Date", field: "investment_date" },
+                        { headerName: "Stock Code", field: "stock_code", filter: true },
+                        { headerName: "Investment Type", field: "investment_type", filter: true },
                         { headerName: "Stock Quantity", field: "stock_quantity" },
-                        { headerName: "Initial Investment INR", field: "investment_value_INR" },
-                        { headerName: "Peak Value INR", field: "peak_value_INR" },
-                        { headerName: "Closing Value INR", field: "closing_value_INR" },
-                        { headerName: "Total Dividend INR", field: "total_dividend_INR" }
+                        { headerName: "Stock Price", field: "stock_price" },
+                        { headerName: "Investment Date", field: "investment_date", filter: true },
+                        { headerName: "SBI TT BUY", field: "SBI_TT_BUY" },
+                        { headerName: "Investment Value (INR)", field: "investment_value_INR" },
+                        { headerName: "Investment Value (USD)", field: "investment_value_USD" },
+                        { headerName: "Peak Date", field: "peak_date" },
+                        { headerName: "Peak Price", field: "peak_price" },
+                        { headerName: "SBI TT BUY (Peak)", field: "SBI_TT_BUY_PEAK" },
+                        { headerName: "Peak Value (INR)", field: "peak_value_INR" },
+                        { headerName: "Peak Value (USD)", field: "peak_value_USD" },
+                        { headerName: "Closing Price", field: "closing_price" },
+                        { headerName: "Closing Date", field: "closing_date" },
+                        { headerName: "SBI TT BUY (Closing)", field: "SBI_TT_BUY_CLOSING" },
+                        { headerName: "Closing Value (INR)", field: "closing_value_INR" },
+                        { headerName: "Closing Value (USD)", field: "closing_value_USD" },
+                        { headerName: "Total Dividend (INR)", field: "total_dividend_INR" },
+                        { headerName: "Total Dividend (USD)", field: "total_dividend_USD" }
                     ],
                     // editable: true,
 //                     quartz: agGrid.themeQuartz,
@@ -367,22 +378,10 @@
 //   alpine: agGrid.themeAlpine,
                     // theme:mytheme,
                     defaultColDef: {
-                        flex: 1,
-                        // minWidth: 100,
+                        minWidth: 150,
                         editable: false,
                         resizable: true,
-                        filter: true
-                    },
-                    autoSizeStrategy: {
-                        type: "fitGridWidth",
-                        defaultMinWidth: 30
-                        // ,
-                        // columnLimits: [
-                        // {
-                        //     colId: "country",
-                        //     minWidth: 900,
-                        // },
-                        // ],
+                        // I've moved filter to specific columns for better usability
                     },
                     rowData: data
                 };
